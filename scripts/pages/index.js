@@ -44,3 +44,5 @@ closeIcon.addEventListener("click", () => {
 function updateRecipeCount(count) {
   recipeCountSpan.textContent = `${count} recette${count > 1 ? "s" : ""}`;
 }
+
+//Affichage des tags ici ou autre fichier

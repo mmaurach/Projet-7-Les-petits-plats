@@ -41,7 +41,7 @@ function search(inputValue, recipes) {
   if (inputValue.length >= 3) {
     return simpleSearch(inputValue, recipes);
   }
-
+  // advanced search a ajouter
   return recipes; // Retourne tout si moins de 3 caractères
 }
 
