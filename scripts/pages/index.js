@@ -1,6 +1,7 @@
+// Affiche les recettes dans le DOM
 function displayRecipes(recipes) {
   const section = document.querySelector(".recipes-container");
-  section.innerHTML = ""; // Nettoyer au cas où
+  section.innerHTML = "";
 
   recipes.forEach((recipe) => {
     const template = recipeTemplate(recipe);
@@ -9,40 +10,64 @@ function displayRecipes(recipes) {
   });
 }
 
-// Appel principal (recettes déjà chargées via script)
-displayRecipes(recipes);
-
-const recipeCountSpan = document.querySelector(".recipe-count");
-recipeCountSpan.textContent = `${recipes.length} recettes`;
-
-const searchInput = document.querySelector("#main-search");
-const closeIcon = document.querySelector(".close-icon");
-
-searchInput.addEventListener("input", (e) => {
-  const inputValue = e.target.value;
-
-  // Affiche ou masque la croix
-  if (inputValue.length > 0) {
-    closeIcon.style.display = "block";
-  } else {
-    closeIcon.style.display = "none";
-  }
-
-  const filtered = search(inputValue, recipes);
-  displayRecipes(filtered);
-  updateRecipeCount(filtered.length);
-});
-
-// Quand on clique sur la croix, on vide le champ et on réinitialise
-closeIcon.addEventListener("click", () => {
-  searchInput.value = "";
-  closeIcon.style.display = "none";
-  displayRecipes(recipes);
-  updateRecipeCount(recipes.length);
-});
-
+// Met à jour le compteur de recettes
 function updateRecipeCount(count) {
+  const recipeCountSpan = document.querySelector(".recipe-count");
   recipeCountSpan.textContent = `${count} recette${count > 1 ? "s" : ""}`;
 }
 
-//Affichage des tags ici ou autre fichier
+// Initialise la page avec toutes les recettes et les tags
+function init() {
+  displayRecipes(recipes);
+  updateRecipeCount(recipes.length);
+
+  const tags = getUniqueTags(recipes);
+  populateDropdowns(tags);
+
+  setupSearch();
+  setupDropdownToggles();
+}
+
+function setupSearch() {
+  const searchInput = document.querySelector("#main-search");
+  const closeIcon = document.querySelector(".close-icon");
+
+  searchInput.addEventListener("input", (e) => {
+    const inputValue = e.target.value;
+
+    closeIcon.style.display = inputValue.length > 0 ? "block" : "none";
+
+    const filtered = search(inputValue, recipes);
+    displayRecipes(filtered);
+    updateRecipeCount(filtered.length);
+  });
+
+  closeIcon.addEventListener("click", () => {
+    searchInput.value = "";
+    closeIcon.style.display = "none";
+    displayRecipes(recipes);
+    updateRecipeCount(recipes.length);
+  });
+}
+
+function setupDropdownToggles() {
+  const dropdownToggles = document.querySelectorAll(".dropdown-toggle");
+
+  // Tous les menus sont fermés au démarrage
+  document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+    menu.style.display = "none";
+  });
+
+  dropdownToggles.forEach((toggle) => {
+    toggle.addEventListener("click", () => {
+      const parentDropdown = toggle.closest(".dropdown");
+      const menu = parentDropdown.querySelector(".dropdown-menu");
+
+      // Basculer indépendamment le menu (sans fermer les autres)
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    });
+  });
+}
+
+// Lancement de l'initialisation
+init();

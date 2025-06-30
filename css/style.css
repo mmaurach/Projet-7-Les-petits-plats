@@ -129,7 +129,7 @@ main {
 
 .dropdown {
   position: relative;
-  min-width: 200px;
+  width: 315px;
 }
 
 .dropdown-toggle {
@@ -154,12 +154,38 @@ main {
   left: 0;
   z-index: 10;
   background-color: #fff;
-  border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
-  margin-top: 0.5rem;
+  padding-left: 16px;
+  margin-top: -6px;
+}
+
+.dropdown-items {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.dropdown-item {
+  font-family: "Manrope", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.dropdown-search-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 13px;
+  margin-top: 14px;
+}
+
+.dropdown-search-wrapper .fa-magnifying-glass {
+  position: absolute;
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  color: #7a7a7a;
 }
 
 .recipe-count {

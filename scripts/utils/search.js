@@ -2,38 +2,31 @@ function normalize(text) {
   return text.toLowerCase().trim();
 }
 
-function getUniqueIngredients(recipesList) {
+function getUniqueTags(recipesList) {
   const ingredientsSet = new Set();
-
-  recipesList.forEach((recipe) => {
-    recipe.ingredients.forEach((item) => {
-      ingredientsSet.add(normalize(item.ingredient));
-    });
-  });
-
-  return Array.from(ingredientsSet);
-}
-
-function getUniqueAppliances(recipesList) {
   const appliancesSet = new Set();
-
-  recipesList.forEach((recipe) => {
-    appliancesSet.add(normalize(recipe.appliance));
-  });
-
-  return Array.from(appliancesSet);
-}
-
-function getUniqueUstensils(recipesList) {
   const ustensilsSet = new Set();
 
   recipesList.forEach((recipe) => {
+    // Ingrédients
+    recipe.ingredients.forEach((item) => {
+      ingredientsSet.add(normalize(item.ingredient));
+    });
+
+    // Appareil
+    appliancesSet.add(normalize(recipe.appliance));
+
+    // Ustensiles
     recipe.ustensils.forEach((item) => {
       ustensilsSet.add(normalize(item));
     });
   });
 
-  return Array.from(ustensilsSet);
+  return {
+    ingredients: Array.from(ingredientsSet),
+    appliances: Array.from(appliancesSet),
+    ustensils: Array.from(ustensilsSet),
+  };
 }
 
 function search(inputValue, recipes) {
