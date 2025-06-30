@@ -34,32 +34,16 @@ function populateDropdowns(tags) {
 
   Object.entries(tags).forEach(([key, values]) => {
     const menu = menus[key];
-    menu.innerHTML = ""; // Vider le menu
 
-    // Ajout d'un conteneur pour l'input et l'icône
-    const searchWrapper = document.createElement("div");
-    searchWrapper.className = "dropdown-search-wrapper";
+    // Récupération des éléments HTML existants
+    const searchInput = menu.querySelector(".dropdown-search");
+    const closeIcon = menu.querySelector(".close-input");
+    const itemsContainer = menu.querySelector(".dropdown-items");
 
-    // Création de l'input
-    const searchInput = document.createElement("input");
-    searchInput.className = "dropdown-search";
-    searchInput.type = "text";
+    // Nettoyer les anciens items
+    itemsContainer.innerHTML = "";
 
-    // Création de l’icône loupe
-    const searchIcon = document.createElement("i");
-    searchIcon.className = "fa-solid fa-magnifying-glass search-input";
-
-    // Ajout à la structure
-    searchWrapper.appendChild(searchInput);
-    searchWrapper.appendChild(searchIcon);
-    menu.appendChild(searchWrapper);
-
-    // Conteneur pour les éléments filtrables
-    const itemsContainer = document.createElement("div");
-    itemsContainer.className = "dropdown-items";
-    menu.appendChild(itemsContainer);
-
-    // Ajouter tous les items
+    // Ajouter dynamiquement les tags dans le menu
     values.forEach((value) => {
       const item = document.createElement("div");
       item.className = "dropdown-item";
@@ -67,14 +51,26 @@ function populateDropdowns(tags) {
       itemsContainer.appendChild(item);
     });
 
-    // Ajout logique de filtrage
+    // Logique de recherche
     searchInput.addEventListener("input", () => {
       const query = searchInput.value.toLowerCase().trim();
+
+      closeIcon.style.display = query.length > 0 ? "block" : "none";
 
       Array.from(itemsContainer.children).forEach((item) => {
         item.style.display = item.textContent.toLowerCase().includes(query)
           ? "block"
           : "none";
+      });
+    });
+
+    // Logique de suppression du texte avec l'icône "x"
+    closeIcon.addEventListener("click", () => {
+      searchInput.value = "";
+      closeIcon.style.display = "none";
+
+      Array.from(itemsContainer.children).forEach((item) => {
+        item.style.display = "block";
       });
     });
   });

@@ -62,9 +62,13 @@ function setupDropdownToggles() {
     toggle.addEventListener("click", () => {
       const parentDropdown = toggle.closest(".dropdown");
       const menu = parentDropdown.querySelector(".dropdown-menu");
+      const isOpen = menu.style.display === "block";
 
       // Basculer indépendamment le menu (sans fermer les autres)
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
+      menu.style.display = isOpen ? "none" : "block";
+
+      // Ajout ou retrait de la classe 'open' pour activer la rotation du chevron
+      parentDropdown.classList.toggle("open", !isOpen);
     });
   });
 }

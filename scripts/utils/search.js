@@ -2,33 +2,6 @@ function normalize(text) {
   return text.toLowerCase().trim();
 }
 
-function getUniqueTags(recipesList) {
-  const ingredientsSet = new Set();
-  const appliancesSet = new Set();
-  const ustensilsSet = new Set();
-
-  recipesList.forEach((recipe) => {
-    // Ingrédients
-    recipe.ingredients.forEach((item) => {
-      ingredientsSet.add(normalize(item.ingredient));
-    });
-
-    // Appareil
-    appliancesSet.add(normalize(recipe.appliance));
-
-    // Ustensiles
-    recipe.ustensils.forEach((item) => {
-      ustensilsSet.add(normalize(item));
-    });
-  });
-
-  return {
-    ingredients: Array.from(ingredientsSet),
-    appliances: Array.from(appliancesSet),
-    ustensils: Array.from(ustensilsSet),
-  };
-}
-
 function search(inputValue, recipes) {
   // Redirige vers simpleSearch (plus tard vers advancedSearch selon conditions)
   if (inputValue.length >= 3) {
