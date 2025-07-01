@@ -180,6 +180,7 @@ main {
   font-family: "Manrope", sans-serif;
   font-size: 14px;
   font-weight: 400;
+  cursor: pointer;
 }
 
 .dropdown-search-wrapper {
@@ -211,6 +212,21 @@ main {
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
+}
+
+.selected-tags {
+  margin-bottom: 20px;
+}
+
+.tag {
+  background-color: #ffd15b;
+  color: #1b1b1b;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .recipe-count {

@@ -16,18 +16,6 @@ function updateRecipeCount(count) {
   recipeCountSpan.textContent = `${count} recette${count > 1 ? "s" : ""}`;
 }
 
-// Initialise la page avec toutes les recettes et les tags
-function init() {
-  displayRecipes(recipes);
-  updateRecipeCount(recipes.length);
-
-  const tags = getUniqueTags(recipes);
-  populateDropdowns(tags);
-
-  setupSearch();
-  setupDropdownToggles();
-}
-
 function setupSearch() {
   const searchInput = document.querySelector("#main-search");
   const closeIcon = document.querySelector(".close-icon");
@@ -73,5 +61,17 @@ function setupDropdownToggles() {
   });
 }
 
-// Lancement de l'initialisation
+// Initialise la page avec toutes les recettes et les tags
+function init() {
+  displayRecipes(recipes);
+  updateRecipeCount(recipes.length);
+
+  const tags = getUniqueTags(recipes);
+  populateDropdowns(tags);
+  setupTagSelection();
+
+  setupSearch();
+  setupDropdownToggles();
+}
+
 init();
