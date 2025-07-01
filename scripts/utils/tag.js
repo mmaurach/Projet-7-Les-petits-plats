@@ -5,24 +5,40 @@ const selectedTags = {
 };
 
 function getUniqueTags(recipesList) {
-  const ingredientsSet = new Set();
-  const appliancesSet = new Set();
-  const ustensilsSet = new Set();
+  const ingredientsMap = new Map();
+  const appliancesMap = new Map();
+  const ustensilsMap = new Map();
 
   recipesList.forEach((recipe) => {
     recipe.ingredients.forEach((item) => {
-      ingredientsSet.add(normalize(item.ingredient));
+      const display = item.ingredient.trim();
+      const value = normalize(display);
+      ingredientsMap.set(value, display);
     });
-    appliancesSet.add(normalize(recipe.appliance));
+
+    const applianceDisplay = recipe.appliance.trim();
+    const applianceValue = normalize(applianceDisplay);
+    appliancesMap.set(applianceValue, applianceDisplay);
+
     recipe.ustensils.forEach((item) => {
-      ustensilsSet.add(normalize(item));
+      const display = item.trim();
+      const value = normalize(display);
+      ustensilsMap.set(value, display);
     });
   });
 
   return {
-    ingredients: Array.from(ingredientsSet),
-    appliances: Array.from(appliancesSet),
-    ustensils: Array.from(ustensilsSet),
+    ingredients: Array.from(ingredientsMap.entries()).map(
+      ([value, display]) => ({ value, display })
+    ),
+    appliances: Array.from(appliancesMap.entries()).map(([value, display]) => ({
+      value,
+      display,
+    })),
+    ustensils: Array.from(ustensilsMap.entries()).map(([value, display]) => ({
+      value,
+      display,
+    })),
   };
 }
 
@@ -41,30 +57,30 @@ function populateDropdowns(tags) {
 
     itemsContainer.innerHTML = "";
 
-    values.forEach((value) => {
+    values.forEach(({ value, display }) => {
       if (selectedTags[key].includes(value)) return;
 
       const item = document.createElement("div");
       item.className = "dropdown-item";
-      item.textContent = value;
+      item.textContent = display;
       item.dataset.type = key;
+      item.dataset.value = value;
       item.style.cursor = "pointer";
       itemsContainer.appendChild(item);
     });
 
-    // Recherche dans le menu
+    // Recherche
     searchInput.addEventListener("input", () => {
-      const query = searchInput.value.toLowerCase().trim();
+      const query = normalize(searchInput.value.trim());
       closeIcon.style.display = query.length > 0 ? "block" : "none";
 
       Array.from(itemsContainer.children).forEach((item) => {
-        item.style.display = item.textContent.toLowerCase().includes(query)
-          ? "block"
-          : "none";
+        const itemText = normalize(item.textContent.trim());
+        item.style.display = itemText.includes(query) ? "block" : "none";
       });
     });
 
-    // Réinitialise la recherche
+    // Reset input
     closeIcon.addEventListener("click", () => {
       searchInput.value = "";
       closeIcon.style.display = "none";
@@ -82,11 +98,12 @@ function setupTagSelection() {
       const target = e.target;
       if (target.classList.contains("dropdown-item")) {
         const type = target.dataset.type;
-        const value = target.textContent.trim();
+        const value = target.dataset.value;
+        const display = target.textContent.trim();
 
         if (!selectedTags[type].includes(value)) {
           selectedTags[type].push(value);
-          displaySelectedTag(type, value);
+          displaySelectedTag(type, value, display);
           updateSearch();
         }
       }
@@ -94,39 +111,62 @@ function setupTagSelection() {
   });
 }
 
-function displaySelectedTag(type, value) {
-  // Mapping dynamique pour insérer le tag dans le bon menu
-  const container = document.querySelector(`#${type}-dropdown .selected-tags`);
+function displaySelectedTag(type, value, displayText) {
+  const typeToId = {
+    ingredients: "ingredients-dropdown",
+    appliances: "appareils-dropdown",
+    ustensils: "ustensiles-dropdown",
+  };
 
+  const dropdownContainer = document.querySelector(
+    `#${typeToId[type]} .selected-tags`
+  );
+  const globalContainer = document.querySelector(".global-selected-tags");
+
+  // Crée le tag local (dans le menu déroulant)
   const tagEl = document.createElement("span");
   tagEl.className = `tag ${type}`;
   tagEl.innerHTML = `
-    ${value}
+    ${displayText}
     <i class="fa-solid fa-xmark remove-tag" data-type="${type}" data-value="${value}"></i>
   `;
 
-  container.appendChild(tagEl);
+  if (dropdownContainer) {
+    dropdownContainer.appendChild(tagEl);
+  }
+
+  // Crée le tag global (en haut)
+  const globalTag = document.createElement("span");
+  globalTag.className = `global-tag ${type}`;
+  globalTag.innerHTML = `
+    ${displayText}
+    <i class="fa-solid fa-xmark remove-tag" data-type="${type}" data-value="${value}"></i>
+  `;
+  globalContainer.appendChild(globalTag);
 }
 
-// Suppression de tag
-document.querySelectorAll(".selected-tags").forEach((container) => {
-  container.addEventListener("click", (e) => {
-    if (e.target.classList.contains("remove-tag")) {
-      const type = e.target.dataset.type;
-      const value = e.target.dataset.value;
+// Suppression des tags sélectionnés (globaux ou locaux)
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("remove-tag")) {
+    const type = e.target.dataset.type;
+    const value = e.target.dataset.value;
 
-      selectedTags[type] = selectedTags[type].filter((tag) => tag !== value);
+    selectedTags[type] = selectedTags[type].filter((tag) => tag !== value);
 
-      e.target.parentElement.remove();
-      updateSearch();
-    }
-  });
+    // Supprime tous les tags avec ce type+value
+    document
+      .querySelectorAll(
+        `.remove-tag[data-type="${type}"][data-value="${value}"]`
+      )
+      .forEach((el) => el.parentElement.remove());
+
+    updateSearch();
+  }
 });
 
-// Fonction appelée à chaque modification (input ou tag)
 function updateSearch() {
   const inputValue = document.querySelector("#main-search").value.trim();
-  const filteredRecipes = search(inputValue, recipes);
+  const filteredRecipes = search(inputValue, recipes); // recherche principale
 
   displayRecipes(filteredRecipes);
   updateRecipeCount(filteredRecipes.length);

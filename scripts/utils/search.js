@@ -1,5 +1,9 @@
 function normalize(text) {
-  return text.toLowerCase().trim();
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 }
 
 // Point d’entrée unique

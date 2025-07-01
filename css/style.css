@@ -124,7 +124,7 @@ main {
   justify-content: flex-start;
   align-items: flex-start;
   gap: 65px;
-  margin-bottom: 55px;
+  margin-bottom: 35px;
 }
 
 .dropdown {
@@ -229,6 +229,36 @@ main {
   justify-content: space-between;
 }
 
+.remove-tag {
+  cursor: pointer;
+}
+
+.global-selected-tags {
+  margin-top: -20px;
+  margin-bottom: 35px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 50px;
+}
+
+/* Style des tags globaux sélectionnés */
+.global-tag {
+  display: flex;
+  align-items: center;
+  background-color: #ffd15b;
+  color: #000;
+  padding: 0 15px;
+  border-radius: 10px;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.global-tag .remove-tag {
+  margin-left: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
 .recipe-count {
   font-family: "Anton", sans-serif;
   font-weight: normal;
