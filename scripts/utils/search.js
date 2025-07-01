@@ -77,3 +77,15 @@ function advancedSearch(inputValue, recipes) {
     return tagsMatch.ingredients && tagsMatch.appliances && tagsMatch.ustensils;
   });
 }
+
+function updateSearch() {
+  const inputValue = document.querySelector("#main-search").value.trim();
+  const filteredRecipes = search(inputValue, recipes); // recherche principale
+
+  displayRecipes(filteredRecipes);
+  updateRecipeCount(filteredRecipes.length);
+
+  const newTags = getUniqueTags(filteredRecipes);
+  populateDropdowns(newTags);
+  setupTagSelection();
+}

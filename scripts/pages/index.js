@@ -20,14 +20,11 @@ function setupSearch() {
   const searchInput = document.querySelector("#main-search");
   const closeIcon = document.querySelector(".close-icon");
 
-  searchInput.addEventListener("input", (e) => {
-    const inputValue = e.target.value;
-
+  searchInput.addEventListener("input", () => {
+    const inputValue = searchInput.value.trim();
     closeIcon.style.display = inputValue.length > 0 ? "block" : "none";
 
-    const filtered = search(inputValue, recipes);
-    displayRecipes(filtered);
-    updateRecipeCount(filtered.length);
+    updateSearch(); // Appelle ta fonction centralisée
   });
 
   closeIcon.addEventListener("click", () => {
