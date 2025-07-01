@@ -4,14 +4,6 @@ const selectedTags = {
   ustensils: [],
 };
 
-// Mapping pour cibler le bon menu selon le type
-const typeToDropdownId = {
-  ingredients: "ingredients-dropdown",
-  appliances: "appareils-dropdown",
-  ustensils: "ustensiles-dropdown",
-};
-
-// --- Extraction des tags ---
 function getUniqueTags(recipesList) {
   const ingredientsSet = new Set();
   const appliancesSet = new Set();
@@ -34,7 +26,6 @@ function getUniqueTags(recipesList) {
   };
 }
 
-// --- Remplissage des menus déroulants ---
 function populateDropdowns(tags) {
   const menus = {
     ingredients: document.querySelector("#ingredients-dropdown .dropdown-menu"),
@@ -44,7 +35,6 @@ function populateDropdowns(tags) {
 
   Object.entries(tags).forEach(([key, values]) => {
     const menu = menus[key];
-
     const searchInput = menu.querySelector(".dropdown-search");
     const closeIcon = menu.querySelector(".close-input");
     const itemsContainer = menu.querySelector(".dropdown-items");
@@ -52,6 +42,8 @@ function populateDropdowns(tags) {
     itemsContainer.innerHTML = "";
 
     values.forEach((value) => {
+      if (selectedTags[key].includes(value)) return;
+
       const item = document.createElement("div");
       item.className = "dropdown-item";
       item.textContent = value;
@@ -60,7 +52,7 @@ function populateDropdowns(tags) {
       itemsContainer.appendChild(item);
     });
 
-    // Recherche dans les tags
+    // Recherche dans le menu
     searchInput.addEventListener("input", () => {
       const query = searchInput.value.toLowerCase().trim();
       closeIcon.style.display = query.length > 0 ? "block" : "none";
@@ -72,9 +64,11 @@ function populateDropdowns(tags) {
       });
     });
 
+    // Réinitialise la recherche
     closeIcon.addEventListener("click", () => {
       searchInput.value = "";
       closeIcon.style.display = "none";
+
       Array.from(itemsContainer.children).forEach((item) => {
         item.style.display = "block";
       });
@@ -82,7 +76,6 @@ function populateDropdowns(tags) {
   });
 }
 
-// --- Gestion de la sélection de tag ---
 function setupTagSelection() {
   document.querySelectorAll(".dropdown-menu").forEach((menu) => {
     menu.addEventListener("click", (e) => {
@@ -94,57 +87,51 @@ function setupTagSelection() {
         if (!selectedTags[type].includes(value)) {
           selectedTags[type].push(value);
           displaySelectedTag(type, value);
-          target.style.display = "none";
-          updateSearch(); // À connecter à advancedSearch plus tard
+          updateSearch();
         }
       }
     });
   });
 }
 
-// --- Affichage du tag sélectionné dans le bon menu ---
 function displaySelectedTag(type, value) {
-  const dropdownId = typeToDropdownId[type];
-  const container = document.querySelector(`#${dropdownId} .selected-tags`);
+  // Mapping dynamique pour insérer le tag dans le bon menu
+  const container = document.querySelector(`#${type}-dropdown .selected-tags`);
 
   const tagEl = document.createElement("span");
   tagEl.className = `tag ${type}`;
   tagEl.innerHTML = `
     ${value}
-    <i class="fa-solid fa-xmark remove-tag" data-type="${type}" data-value="${value}" style="cursor:pointer;"></i>
+    <i class="fa-solid fa-xmark remove-tag" data-type="${type}" data-value="${value}"></i>
   `;
 
   container.appendChild(tagEl);
 }
 
-// --- Suppression d’un tag sélectionné ---
-document.querySelectorAll(".dropdown-menu").forEach((menu) => {
-  const selectedTagsContainer = menu.querySelector(".selected-tags");
-  selectedTagsContainer.addEventListener("click", (e) => {
+// Suppression de tag
+document.querySelectorAll(".selected-tags").forEach((container) => {
+  container.addEventListener("click", (e) => {
     if (e.target.classList.contains("remove-tag")) {
       const type = e.target.dataset.type;
       const value = e.target.dataset.value;
 
-      // Mise à jour du tableau
       selectedTags[type] = selectedTags[type].filter((tag) => tag !== value);
 
-      // Retirer du DOM
       e.target.parentElement.remove();
-
-      // Réaffichage dans la liste
-      const dropdownId = typeToDropdownId[type];
-      const menuElement = document.querySelector(
-        `#${dropdownId} .dropdown-menu`
-      );
-      const items = menuElement.querySelectorAll(".dropdown-item");
-
-      items.forEach((item) => {
-        if (normalize(item.textContent) === normalize(value)) {
-          item.style.display = "block";
-        }
-      });
-
-      updateSearch(); // À connecter à advancedSearch plus tard
+      updateSearch();
     }
   });
 });
+
+// Fonction appelée à chaque modification (input ou tag)
+function updateSearch() {
+  const inputValue = document.querySelector("#main-search").value.trim();
+  const filteredRecipes = search(inputValue, recipes);
+
+  displayRecipes(filteredRecipes);
+  updateRecipeCount(filteredRecipes.length);
+
+  const newTags = getUniqueTags(filteredRecipes);
+  populateDropdowns(newTags);
+  setupTagSelection();
+}
