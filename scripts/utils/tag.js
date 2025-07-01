@@ -27,18 +27,13 @@ function getUniqueTags(recipesList) {
     });
   });
 
+  const mapToArray = (map) =>
+    Array.from(map.entries()).map(([value, display]) => ({ value, display }));
+
   return {
-    ingredients: Array.from(ingredientsMap.entries()).map(
-      ([value, display]) => ({ value, display })
-    ),
-    appliances: Array.from(appliancesMap.entries()).map(([value, display]) => ({
-      value,
-      display,
-    })),
-    ustensils: Array.from(ustensilsMap.entries()).map(([value, display]) => ({
-      value,
-      display,
-    })),
+    ingredients: mapToArray(ingredientsMap),
+    appliances: mapToArray(appliancesMap),
+    ustensils: mapToArray(ustensilsMap),
   };
 }
 
@@ -49,8 +44,8 @@ function populateDropdowns(tags) {
     ustensils: document.querySelector("#ustensiles-dropdown .dropdown-menu"),
   };
 
-  Object.entries(tags).forEach(([key, values]) => {
-    const menu = menus[key];
+  Object.entries(tags).forEach(([type, values]) => {
+    const menu = menus[type];
     const searchInput = menu.querySelector(".dropdown-search");
     const closeIcon = menu.querySelector(".close-input");
     const itemsContainer = menu.querySelector(".dropdown-items");
@@ -58,36 +53,22 @@ function populateDropdowns(tags) {
     itemsContainer.innerHTML = "";
 
     values.forEach(({ value, display }) => {
-      if (selectedTags[key].includes(value)) return;
-
-      const item = document.createElement("div");
-      item.className = "dropdown-item";
-      item.textContent = display;
-      item.dataset.type = key;
-      item.dataset.value = value;
-      item.style.cursor = "pointer";
-      itemsContainer.appendChild(item);
+      if (!selectedTags[type].includes(value)) {
+        const item = createDropdownItem(display, type, value);
+        itemsContainer.appendChild(item);
+      }
     });
 
-    // Recherche
     searchInput.addEventListener("input", () => {
       const query = normalize(searchInput.value.trim());
-      closeIcon.style.display = query.length > 0 ? "block" : "none";
-
-      Array.from(itemsContainer.children).forEach((item) => {
-        const itemText = normalize(item.textContent.trim());
-        item.style.display = itemText.includes(query) ? "block" : "none";
-      });
+      toggleCloseIcon(closeIcon, query);
+      filterDropdownItems(itemsContainer, query);
     });
 
-    // Reset input
     closeIcon.addEventListener("click", () => {
       searchInput.value = "";
-      closeIcon.style.display = "none";
-
-      Array.from(itemsContainer.children).forEach((item) => {
-        item.style.display = "block";
-      });
+      toggleCloseIcon(closeIcon, "");
+      filterDropdownItems(itemsContainer, "");
     });
   });
 }
@@ -118,31 +99,47 @@ function displaySelectedTag(type, value, displayText) {
     ustensils: "ustensiles-dropdown",
   };
 
-  const dropdownContainer = document.querySelector(
+  const localContainer = document.querySelector(
     `#${typeToId[type]} .selected-tags`
   );
   const globalContainer = document.querySelector(".global-selected-tags");
 
-  // Crée le tag local (dans le menu déroulant)
-  const tagEl = document.createElement("span");
-  tagEl.className = `tag ${type}`;
-  tagEl.innerHTML = `
-    ${displayText}
+  const tag = createTagElement(type, value, displayText, "tag");
+  const globalTag = createTagElement(type, value, displayText, "global-tag");
+
+  if (localContainer) localContainer.appendChild(tag);
+  if (globalContainer) globalContainer.appendChild(globalTag);
+}
+
+function createDropdownItem(display, type, value) {
+  const item = document.createElement("div");
+  item.className = "dropdown-item";
+  item.textContent = display;
+  item.dataset.type = type;
+  item.dataset.value = value;
+  item.style.cursor = "pointer";
+  return item;
+}
+
+function createTagElement(type, value, display, tagClass = "tag") {
+  const span = document.createElement("span");
+  span.className = `${tagClass} ${type}`;
+  span.innerHTML = `
+    ${display}
     <i class="fa-solid fa-xmark remove-tag" data-type="${type}" data-value="${value}"></i>
   `;
+  return span;
+}
 
-  if (dropdownContainer) {
-    dropdownContainer.appendChild(tagEl);
-  }
+function toggleCloseIcon(icon, query) {
+  icon.style.display = query.length > 0 ? "block" : "none";
+}
 
-  // Crée le tag global (en haut)
-  const globalTag = document.createElement("span");
-  globalTag.className = `global-tag ${type}`;
-  globalTag.innerHTML = `
-    ${displayText}
-    <i class="fa-solid fa-xmark remove-tag" data-type="${type}" data-value="${value}"></i>
-  `;
-  globalContainer.appendChild(globalTag);
+function filterDropdownItems(container, query) {
+  Array.from(container.children).forEach((item) => {
+    const text = normalize(item.textContent.trim());
+    item.style.display = text.includes(query) ? "block" : "none";
+  });
 }
 
 // Suppression des tags sélectionnés (globaux ou locaux)
@@ -153,7 +150,6 @@ document.addEventListener("click", (e) => {
 
     selectedTags[type] = selectedTags[type].filter((tag) => tag !== value);
 
-    // Supprime tous les tags avec ce type+value
     document
       .querySelectorAll(
         `.remove-tag[data-type="${type}"][data-value="${value}"]`
