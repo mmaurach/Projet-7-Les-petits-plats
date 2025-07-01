@@ -20,18 +20,27 @@ function setupSearch() {
   const searchInput = document.querySelector("#main-search");
   const closeIcon = document.querySelector(".close-icon");
 
-  searchInput.addEventListener("input", () => {
-    const inputValue = searchInput.value.trim();
+  // Lors de la saisie dans le champ principal
+  searchInput.addEventListener("input", (e) => {
+    const inputValue = e.target.value.trim();
+
+    // Affiche ou masque la croix selon la saisie
     closeIcon.style.display = inputValue.length > 0 ? "block" : "none";
 
-    updateSearch(); // Appelle ta fonction centralisée
+    // Met à jour les recettes et les tags
+    updateSearch();
   });
 
+  // Lors du clic sur la croix (pour vider le champ)
   closeIcon.addEventListener("click", () => {
+    // Vide le champ
     searchInput.value = "";
+
+    // Cache la croix
     closeIcon.style.display = "none";
-    displayRecipes(recipes);
-    updateRecipeCount(recipes.length);
+
+    // Déclenche manuellement l'événement input pour réutiliser la logique
+    searchInput.dispatchEvent(new Event("input"));
   });
 }
 
