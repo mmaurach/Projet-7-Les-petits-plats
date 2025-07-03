@@ -41,25 +41,15 @@ function simpleSearch(inputValue, recipes) {
 }
 
 function advancedSearch(inputValue, recipes) {
-  const searchTerm = normalize(inputValue);
+  let filteredRecipes = recipes;
 
-  return recipes.filter((recipe) => {
-    // 1. Si input ≥ 3 lettres, filtrer par titre, description, ingrédients
-    if (searchTerm.length >= 3) {
-      const titleMatch = normalize(recipe.name).includes(searchTerm);
-      const descriptionMatch = normalize(recipe.description).includes(
-        searchTerm
-      );
-      const ingredientsMatch = recipe.ingredients.some((ingredientObj) =>
-        normalize(ingredientObj.ingredient).includes(searchTerm)
-      );
+  // 1. Si input ≥ 3 lettres, on utilise simpleSearch pour filtrer
+  if (normalize(inputValue).length >= 3) {
+    filteredRecipes = simpleSearch(inputValue, recipes);
+  }
 
-      if (!(titleMatch || descriptionMatch || ingredientsMatch)) {
-        return false;
-      }
-    }
-
-    // 2. Filtrer par tags sélectionnés
+  // 2. Filtrer les recettes restantes par les tags sélectionnés
+  return filteredRecipes.filter((recipe) => {
     const tagsMatch = {
       ingredients: selectedTags.ingredients.every((tag) =>
         recipe.ingredients.some(
