@@ -26,9 +26,8 @@ function setupSearch() {
 
     // Affiche ou masque la croix selon la saisie
     closeIcon.style.display = inputValue.length > 0 ? "block" : "none";
-
     // Met à jour les recettes et les tags
-    updateSearch();
+    updateSearch(inputValue);
   });
 
   // Lors du clic sur la croix (pour vider le champ)

@@ -73,7 +73,7 @@ function advancedSearch(inputValue, recipes) {
 
   for (let i = 0; i < filteredRecipes.length; i++) {
     const recipe = filteredRecipes[i];
-
+    console.log(selectedTags);
     const ingredientsOk = everyNative(
       selectedTags.ingredients,
       recipe.ingredients,
@@ -119,8 +119,7 @@ function search(inputValue, recipes) {
   return recipes;
 }
 
-function updateSearch() {
-  const inputValue = document.querySelector("#main-search").value.trim();
+function updateSearch(inputValue) {
   const filteredRecipes = search(inputValue, recipes); // recherche principale
 
   displayRecipes(filteredRecipes);

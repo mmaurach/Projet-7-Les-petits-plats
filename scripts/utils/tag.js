@@ -85,7 +85,10 @@ function setupTagSelection() {
         if (!selectedTags[type].includes(value)) {
           selectedTags[type].push(value);
           displaySelectedTag(type, value, display);
-          updateSearch();
+          const inputValue = document
+            .querySelector("#main-search")
+            .value.trim();
+          updateSearch(inputValue);
         }
       }
     });
@@ -155,7 +158,7 @@ document.addEventListener("click", (e) => {
         `.remove-tag[data-type="${type}"][data-value="${value}"]`
       )
       .forEach((el) => el.parentElement.remove());
-
-    updateSearch();
+    const inputValue = document.querySelector("#main-search").value.trim();
+    updateSearch(inputValue);
   }
 });
