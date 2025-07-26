@@ -1,83 +1,84 @@
 // Affiche les recettes dans le DOM
 function displayRecipes(recipes) {
-  const section = document.querySelector(".recipes-container");
-  section.innerHTML = "";
+  const section = document.querySelector(".recipes-container"); // Sélectionne le conteneur où seront affichées les cartes recettes
+  section.innerHTML = ""; // Vide le conteneur avant de réafficher les nouvelles recettes
 
   recipes.forEach((recipe) => {
-    const template = recipeTemplate(recipe);
-    const recipeCard = template.getRecipeCardDOM();
-    section.appendChild(recipeCard);
+    const template = recipeTemplate(recipe); // Crée un objet de template pour chaque recette
+    const recipeCard = template.getRecipeCardDOM(); // Génère le DOM de la carte recette
+    section.appendChild(recipeCard); // Ajoute la carte à la section
   });
 }
 
-// Met à jour le compteur de recettes
+// Met à jour le compteur de recettes affichées
 function updateRecipeCount(count) {
-  const recipeCountSpan = document.querySelector(".recipe-count");
-  recipeCountSpan.textContent = `${count} recette${count > 1 ? "s" : ""}`;
+  const recipeCountSpan = document.querySelector(".recipe-count"); // Sélectionne l’élément affichant le nombre de recettes
+  recipeCountSpan.textContent = `${count} recette${count > 1 ? "s" : ""}`; // Met à jour le texte, en ajoutant un "s" si besoin
 }
 
+// Initialise la recherche globale
 function setupSearch() {
-  const searchInput = document.querySelector("#main-search");
-  const closeIcon = document.querySelector(".close-icon");
+  const searchInput = document.querySelector("#main-search"); // Champ principal de recherche
+  const closeIcon = document.querySelector(".close-icon"); // Icône croix pour effacer le champ
 
-  // Lors de la saisie dans le champ principal
+  // Lorsqu’on tape dans le champ de recherche
   searchInput.addEventListener("input", (e) => {
-    const inputValue = e.target.value.trim();
+    const inputValue = e.target.value.trim(); // On récupère la valeur saisie sans les espaces
 
-    // Affiche ou masque la croix selon la saisie
+    // Affiche ou masque la croix en fonction de la présence de texte
     closeIcon.style.display = inputValue.length > 0 ? "block" : "none";
 
-    // Met à jour les recettes et les tags
+    // Met à jour les recettes et les tags correspondants
     updateSearch();
   });
 
-  // Lors du clic sur la croix (pour vider le champ)
+  // Lorsqu'on clique sur la croix pour vider le champ
   closeIcon.addEventListener("click", () => {
-    // Vide le champ
-    searchInput.value = "";
+    searchInput.value = ""; // Vide le champ
+    closeIcon.style.display = "none"; // Cache la croix
 
-    // Cache la croix
-    closeIcon.style.display = "none";
-
-    // Déclenche manuellement l'événement input pour réutiliser la logique
+    // Déclenche manuellement l’événement input pour relancer la recherche
     searchInput.dispatchEvent(new Event("input"));
   });
 }
 
+// Gère l'ouverture/fermeture des dropdowns (menus des tags)
 function setupDropdownToggles() {
-  const dropdownToggles = document.querySelectorAll(".dropdown-toggle");
+  const dropdownToggles = document.querySelectorAll(".dropdown-toggle"); // Sélectionne tous les boutons de dropdown
 
-  // Tous les menus sont fermés au démarrage
+  // Ferme tous les menus dropdown au chargement
   document.querySelectorAll(".dropdown-menu").forEach((menu) => {
     menu.style.display = "none";
   });
 
+  // Ajoute un écouteur à chaque bouton de dropdown
   dropdownToggles.forEach((toggle) => {
     toggle.addEventListener("click", () => {
-      const parentDropdown = toggle.closest(".dropdown");
-      const menu = parentDropdown.querySelector(".dropdown-menu");
-      const isOpen = menu.style.display === "block";
+      const parentDropdown = toggle.closest(".dropdown"); // Récupère le conteneur parent
+      const menu = parentDropdown.querySelector(".dropdown-menu"); // Récupère le menu correspondant
+      const isOpen = menu.style.display === "block"; // Vérifie si le menu est déjà ouvert
 
-      // Basculer indépendamment le menu (sans fermer les autres)
+      // Ouvre ou ferme le menu en fonction de son état actuel
       menu.style.display = isOpen ? "none" : "block";
 
-      // Ajout ou retrait de la classe 'open' pour activer la rotation du chevron
+      // Active ou désactive la rotation du chevron via la classe CSS 'open'
       parentDropdown.classList.toggle("open", !isOpen);
     });
   });
 }
 
-// Initialise la page avec toutes les recettes et les tags
+// Fonction principale d’initialisation du site
 function init() {
-  displayRecipes(recipes);
-  updateRecipeCount(recipes.length);
+  displayRecipes(recipes); // Affiche toutes les recettes au chargement
+  updateRecipeCount(recipes.length); // Affiche le nombre total de recettes
 
-  const tags = getUniqueTags(recipes);
-  populateDropdowns(tags);
-  setupTagSelection();
+  const tags = getUniqueTags(recipes); // Récupère tous les tags uniques depuis les recettes
+  populateDropdowns(tags); // Remplit les menus déroulants avec ces tags
+  setupTagSelection(); // Active la logique de sélection/désélection des tags
 
-  setupSearch();
-  setupDropdownToggles();
+  setupSearch(); // Initialise le comportement du champ de recherche
+  setupDropdownToggles(); // Initialise les menus dropdowns
 }
 
+// Démarre l'application
 init();
